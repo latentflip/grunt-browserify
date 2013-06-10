@@ -2,6 +2,7 @@
 
 var fs = require('fs');
 var path = require('path');
+var mold = require('mold-source-map')
 
 /*
  * grunt-browserify
@@ -142,17 +143,23 @@ module.exports = function (grunt) {
         return bundle(opts_, cb);
       };
 
-      var writeBundle = function (cb) {
-        b.bundle(opts, function(err, src) {
-          if (err) {
-            grunt.fail.warn(err);
-          }
-          grunt.file.write(file.dest, src);
-          grunt.log.ok('Bundled ' + file.dest);
+      var removeSourcesContent = function(sourcemap) {
+        sourcemap.sourcemap.setProperty('sourcesContent', null)
+        return sourcemap.toComment()
+      };
 
-          if(cb) cb()
-        });
-      }
+      var mapRelativeSources = function(file) {
+        return '/' + path.relative(path.resolve('.'), file)
+      };
+
+
+      var writeBundle = function (cb) {
+        b.bundle(opts)
+         .pipe(mold.transformSources(mapRelativeSources))
+         .pipe(mold.transform(removeSourcesContent))
+         .pipe(fs.createWriteStream(file.dest))
+        if (cb) cb()
+      };
 
       b.on('update', writeBundle)
       writeBundle(next)

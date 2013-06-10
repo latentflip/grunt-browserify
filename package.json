@@ -31,7 +31,8 @@
   },
   "dependencies": {
     "browserify": ">=2.17.0 <3.0.0",
-    "browserify-shim": "~2.0.3"
+    "browserify-shim": "~2.0.3",
+    "mold-source-map": "~0.2.0"
   },
   "devDependencies": {
     "grunt-contrib-jshint": "0.1.x",
