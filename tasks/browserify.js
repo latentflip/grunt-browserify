@@ -25,7 +25,8 @@ module.exports = function (grunt) {
 
     var opts = this.options();
 
-    grunt.event.on('watch', function(action, filepath) {
+    grunt.event.on('watch.browserify', function(action, filepath) {
+      console.log('Got watch:browserify')
       filepath = path.resolve(filepath)
       grunt.log.ok(filepath)
 
@@ -149,15 +150,19 @@ module.exports = function (grunt) {
       };
 
       var mapRelativeSources = function(file) {
-        return '/' + path.relative(path.resolve('.'), file)
+        return 'http://localhost:8908/' + path.relative(path.resolve('./frontend'), file)
       };
 
 
       var writeBundle = function (cb) {
-        b.bundle(opts)
-         .pipe(mold.transformSources(mapRelativeSources))
-         .pipe(mold.transform(removeSourcesContent))
-         .pipe(fs.createWriteStream(file.dest))
+        if (opts.debug) {
+          b.bundle(opts)
+            .pipe(mold.transformSources(mapRelativeSources))
+            .pipe(mold.transform(removeSourcesContent))
+            .pipe(fs.createWriteStream(file.dest))
+        } else {
+          b.bundle(opts).pipe(fs.createWriteStream(file.dest))
+        }
         if (cb) cb()
       };
 
