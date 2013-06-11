@@ -150,8 +150,14 @@ module.exports = function (grunt) {
       };
 
       var mapRelativeSources = function(file) {
-        return 'http://localhost:8908/' + path.relative(path.resolve('./frontend'), file)
+        return 'browserify://' + path.relative(path.resolve(opts.sourceMapRoot), file)
       };
+
+      if (opts.debug) {
+        grunt.log.subhead('Setup chrome workspaces like:'.underline);
+        grunt.log.writeln('Folders: ' + path.resolve(opts.sourceMapRoot).cyan);
+        grunt.log.writeln("Mappings: \n  From: " + "browserify://".cyan + "\n    To: " + path.resolve(opts.sourceMapRoot).cyan);
+      }
 
 
       var writeBundle = function (cb) {
