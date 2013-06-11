@@ -4,6 +4,7 @@ var fs = require('fs');
 var path = require('path');
 var mold = require('mold-source-map')
 
+
 /*
  * grunt-browserify
  * https://github.com/jmreidy/grunt-browserify
@@ -26,13 +27,21 @@ module.exports = function (grunt) {
     var opts = this.options();
 
     grunt.event.on('watch.browserify', function(action, filepath) {
-      console.log('Got watch:browserify')
       filepath = path.resolve(filepath)
-      grunt.log.ok(filepath)
-
       delete cache[filepath]
       watching[filepath] = false
 
+      if (action === 'added' && opts.multifile) {
+        b.add(filepath)
+      }
+      if (action === 'deleted' && opts.multifile) {
+        b.files = b.files.filter(function(f) {
+          return f != filepath;
+        });
+        b._entries = b._entries.filter(function(f) {
+          return f != filepath;
+        });
+      }
       if (!pending) setTimeout(function() {
         pending = false;
         b.emit('update');
