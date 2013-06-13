@@ -163,22 +163,29 @@ module.exports = function (grunt) {
       };
 
       if (opts.debug) {
-        grunt.log.subhead('Setup chrome workspaces like:'.underline);
-        grunt.log.writeln('Folders: ' + path.resolve(opts.sourceMapRoot).cyan);
-        grunt.log.writeln("Mappings: \n  From: " + "browserify://".cyan + "\n    To: " + path.resolve(opts.sourceMapRoot).cyan);
+        grunt.log.writeln('\n  Setup chrome workspaces like:'.bold);
+        grunt.log.writeln('   Folders: ' + path.resolve(opts.sourceMapRoot).cyan);
+        grunt.log.writeln('   Mappings: \n    From: ' + 'browserify://'.cyan + '\n      To: ' + path.resolve(opts.sourceMapRoot).cyan);
+        grunt.log.writeln('');
       }
 
 
       var writeBundle = function (cb) {
+        var done = function() {
+          grunt.log.ok('Wrote bundle to ' +file.dest)
+          if (cb) cb();
+        }
         if (opts.debug) {
           b.bundle(opts)
             .pipe(mold.transformSources(mapRelativeSources))
             .pipe(mold.transform(removeSourcesContent))
             .pipe(fs.createWriteStream(file.dest))
+            .on('close', done)
         } else {
-          b.bundle(opts).pipe(fs.createWriteStream(file.dest))
+          b.bundle(opts)
+            .pipe(fs.createWriteStream(file.dest))
+            .on('close', done)
         }
-        if (cb) cb()
       };
 
       b.on('update', writeBundle)
