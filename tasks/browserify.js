@@ -26,28 +26,30 @@ module.exports = function (grunt) {
 
     var opts = this.options();
 
-    grunt.event.on('watch.browserify', function(action, filepath) {
-      filepath = path.resolve(filepath)
-      delete cache[filepath]
-      watching[filepath] = false
+    grunt.event.on('watch', function(action, filepath, target) {
+      if (target === 'browserify') {
+        filepath = path.resolve(filepath)
+        delete cache[filepath]
+        watching[filepath] = false
 
-      if (action === 'added' && opts.multifile) {
-        b.add(filepath)
-      }
-      if (action === 'deleted' && opts.multifile) {
-        b.files = b.files.filter(function(f) {
-          return f != filepath;
-        });
-        b._entries = b._entries.filter(function(f) {
-          return f != filepath;
-        });
-      }
-      if (!pending) setTimeout(function() {
-        pending = false;
-        b.emit('update');
-      }, opts.delay || 300);
+        if (action === 'added' && opts.multifile) {
+          b.add(filepath)
+        }
+        if (action === 'deleted' && opts.multifile) {
+          b.files = b.files.filter(function(f) {
+            return f != filepath;
+          });
+          b._entries = b._entries.filter(function(f) {
+            return f != filepath;
+          });
+        }
+        if (!pending) setTimeout(function() {
+          pending = false;
+          b.emit('update');
+        }, opts.delay || 300);
 
-      pending = true;
+        pending = true;
+      }
     });
 
 
